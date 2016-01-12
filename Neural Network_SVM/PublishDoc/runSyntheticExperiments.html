@@ -1,0 +1,458 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>runSyntheticExperiments</title><meta name="generator" content="MATLAB 8.5"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2015-10-10"><meta name="DC.source" content="runSyntheticExperiments.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#2">run multi-layered perceptron</a></li><li><a href="#3">run linear SVM</a></li><li><a href="#4">run polynomial SVM</a></li><li><a href="#5">run RBF SVM</a></li><li><a href="#7">Print accuracy results</a></li></ul></div><p>Runs multi-layered perceptron, linear SVM, polynomial SVM, and RBF SVM on 10 different synthetic data sets, uses cross-validation, and evaluates on the test sets.</p><pre class="codeinput">clear;
+close <span class="string">all</span>;
+
+load <span class="string">../syntheticData</span>;
+
+numDataSets = length(trainData);
+numModels = 4;
+folds = 5;
+
+testAccuracy = zeros(numDataSets, numModels);
+
+
+<span class="keyword">for</span> i = 1:numDataSets
+</pre><h2>run multi-layered perceptron<a name="2"></a></h2><pre class="codeinput">    structures = {1, 2, 4, [2 2], [2 4], [4 4], [2 2 2]};
+    lambdaVals = [0.01, 0.1, 1];
+
+    clear <span class="string">params</span>;
+
+    params.maxIter = 400;
+    params.squashFunction = @logistic;
+    params.lossFunction = @nll;
+
+    bestParams = [];
+    bestScore = 0;
+
+    <span class="keyword">for</span> j = 1:length(structures)
+        <span class="keyword">for</span> k = 1:length(lambdaVals)
+            params.numHiddenUnits = structures{j};
+            params.lambda = lambdaVals(k);
+
+            cvScore = crossValidate(@mlpTrain, @mlpPredict, trainData{i},<span class="keyword">...</span>
+                trainLabels{i}, folds, params);
+
+            <span class="keyword">if</span> cvScore &gt; bestScore
+                bestScore = cvScore;
+                bestParams = params;
+            <span class="keyword">end</span>
+        <span class="keyword">end</span>
+    <span class="keyword">end</span>
+
+    model = mlpTrain(trainData{i}, trainLabels{i}, bestParams);
+    predictions = mlpPredict(testData{i}, model);
+    testAccuracy(i,1) = sum(predictions == testLabels{i}) / length(testLabels{i});
+
+    figure;
+    plotSurface(@mlpPredict, model);
+    title(sprintf(<span class="string">'MLP on Data Set %d'</span>, i));
+
+    hold <span class="string">on</span>;
+    plotData(trainData{i}, trainLabels{i});
+    hold <span class="string">off</span>;
+    drawnow;
+</pre><img vspace="5" hspace="5" src="runSyntheticExperiments_01.png" alt=""> <img vspace="5" hspace="5" src="runSyntheticExperiments_05.png" alt=""> <img vspace="5" hspace="5" src="runSyntheticExperiments_09.png" alt=""> <img vspace="5" hspace="5" src="runSyntheticExperiments_13.png" alt=""> <img vspace="5" hspace="5" src="runSyntheticExperiments_17.png" alt=""> <img vspace="5" hspace="5" src="runSyntheticExperiments_21.png" alt=""> <img vspace="5" hspace="5" src="runSyntheticExperiments_25.png" alt=""> <img vspace="5" hspace="5" src="runSyntheticExperiments_29.png" alt=""> <img vspace="5" hspace="5" src="runSyntheticExperiments_33.png" alt=""> <img vspace="5" hspace="5" src="runSyntheticExperiments_37.png" alt=""> <h2>run linear SVM<a name="3"></a></h2><pre class="codeinput">    cVals = 10.^linspace(-3, 3, 7);
+
+    clear <span class="string">params</span>;
+
+    params.kernel = <span class="string">'linear'</span>;
+
+    bestParams = [];
+    bestScore = 0;
+
+    <span class="keyword">for</span> j = 1:length(cVals)
+        params.C = cVals(j);
+        cvScore = crossValidate(@kernelSvmTrain, @kernelSvmPredict, <span class="keyword">...</span>
+            trainData{i}, trainLabels{i}, folds, params);
+
+        <span class="keyword">if</span> cvScore &gt; bestScore
+            bestScore = cvScore;
+            bestParams = params;
+        <span class="keyword">end</span>
+    <span class="keyword">end</span>
+
+    model = kernelSvmTrain(trainData{i}, trainLabels{i}, bestParams);
+    predictions = kernelSvmPredict(testData{i}, model);
+    testAccuracy(i,2) = sum(predictions == testLabels{i}) / length(testLabels{i});
+
+    figure;
+    plotSurface(@kernelSvmPredict, model);
+    title(sprintf(<span class="string">'Linear SVM on Data Set %d'</span>, i));
+
+    hold <span class="string">on</span>;
+    plotData(trainData{i}, trainLabels{i});
+    hold <span class="string">off</span>;
+    drawnow;
+</pre><img vspace="5" hspace="5" src="runSyntheticExperiments_02.png" alt=""> <img vspace="5" hspace="5" src="runSyntheticExperiments_06.png" alt=""> <img vspace="5" hspace="5" src="runSyntheticExperiments_10.png" alt=""> <img vspace="5" hspace="5" src="runSyntheticExperiments_14.png" alt=""> <img vspace="5" hspace="5" src="runSyntheticExperiments_18.png" alt=""> <img vspace="5" hspace="5" src="runSyntheticExperiments_22.png" alt=""> <img vspace="5" hspace="5" src="runSyntheticExperiments_26.png" alt=""> <img vspace="5" hspace="5" src="runSyntheticExperiments_30.png" alt=""> <img vspace="5" hspace="5" src="runSyntheticExperiments_34.png" alt=""> <img vspace="5" hspace="5" src="runSyntheticExperiments_38.png" alt=""> <h2>run polynomial SVM<a name="4"></a></h2><pre class="codeinput">    cVals = 10.^linspace(-3, 3, 7);
+    orders = [2 3 4 5 6];
+
+    clear <span class="string">params</span>;
+
+    params.kernel = <span class="string">'polynomial'</span>;
+
+    bestParams = [];
+    bestScore = 0;
+
+    <span class="keyword">for</span> j = 1:length(cVals)
+        <span class="keyword">for</span> k = 1:length(orders)
+            params.C = cVals(j);
+            params.order = orders(k);
+
+            cvScore = crossValidate(@kernelSvmTrain, @kernelSvmPredict, <span class="keyword">...</span>
+                trainData{i}, trainLabels{i}, folds, params);
+
+            <span class="keyword">if</span> cvScore &gt; bestScore
+                bestScore = cvScore;
+                bestParams = params;
+            <span class="keyword">end</span>
+        <span class="keyword">end</span>
+    <span class="keyword">end</span>
+
+    model = kernelSvmTrain(trainData{i}, trainLabels{i}, bestParams);
+    predictions = kernelSvmPredict(testData{i}, model);
+    testAccuracy(i,3) = sum(predictions == testLabels{i}) / length(testLabels{i});
+
+    figure;
+    plotSurface(@kernelSvmPredict, model);
+    title(sprintf(<span class="string">'Polynomial SVM on Data Set %d'</span>, i));
+
+    hold <span class="string">on</span>;
+    plotData(trainData{i}, trainLabels{i});
+    hold <span class="string">off</span>;
+    drawnow;
+</pre><img vspace="5" hspace="5" src="runSyntheticExperiments_03.png" alt=""> <img vspace="5" hspace="5" src="runSyntheticExperiments_07.png" alt=""> <img vspace="5" hspace="5" src="runSyntheticExperiments_11.png" alt=""> <img vspace="5" hspace="5" src="runSyntheticExperiments_15.png" alt=""> <img vspace="5" hspace="5" src="runSyntheticExperiments_19.png" alt=""> <img vspace="5" hspace="5" src="runSyntheticExperiments_23.png" alt=""> <img vspace="5" hspace="5" src="runSyntheticExperiments_27.png" alt=""> <img vspace="5" hspace="5" src="runSyntheticExperiments_31.png" alt=""> <img vspace="5" hspace="5" src="runSyntheticExperiments_35.png" alt=""> <img vspace="5" hspace="5" src="runSyntheticExperiments_39.png" alt=""> <h2>run RBF SVM<a name="5"></a></h2><pre class="codeinput">    cVals = 10.^linspace(-3, 3, 7);
+    sigmaVals = 10.^linspace(-2, 1, 5);
+
+    clear <span class="string">params</span>;
+
+    params.kernel = <span class="string">'rbf'</span>;
+
+    bestParams = [];
+    bestScore = 0;
+
+    <span class="keyword">for</span> j = 1:length(cVals)
+        <span class="keyword">for</span> k = 1:length(sigmaVals)
+            params.C = cVals(j);
+            params.sigma = sigmaVals(k);
+
+            cvScore = crossValidate(@kernelSvmTrain, @kernelSvmPredict, <span class="keyword">...</span>
+                trainData{i}, trainLabels{i}, folds, params);
+
+            <span class="keyword">if</span> cvScore &gt; bestScore
+                bestScore = cvScore;
+                bestParams = params;
+            <span class="keyword">end</span>
+        <span class="keyword">end</span>
+    <span class="keyword">end</span>
+
+    model = kernelSvmTrain(trainData{i}, trainLabels{i}, bestParams);
+    predictions = kernelSvmPredict(testData{i}, model);
+    testAccuracy(i,4) = sum(predictions == testLabels{i}) / length(testLabels{i});
+
+    figure;
+    plotSurface(@kernelSvmPredict, model);
+    title(sprintf(<span class="string">'RBF SVM on Data Set %d'</span>, i));
+
+    hold <span class="string">on</span>;
+    plotData(trainData{i}, trainLabels{i});
+    hold <span class="string">off</span>;
+    drawnow;
+</pre><img vspace="5" hspace="5" src="runSyntheticExperiments_04.png" alt=""> <img vspace="5" hspace="5" src="runSyntheticExperiments_08.png" alt=""> <img vspace="5" hspace="5" src="runSyntheticExperiments_12.png" alt=""> <img vspace="5" hspace="5" src="runSyntheticExperiments_16.png" alt=""> <img vspace="5" hspace="5" src="runSyntheticExperiments_20.png" alt=""> <img vspace="5" hspace="5" src="runSyntheticExperiments_24.png" alt=""> <img vspace="5" hspace="5" src="runSyntheticExperiments_28.png" alt=""> <img vspace="5" hspace="5" src="runSyntheticExperiments_32.png" alt=""> <img vspace="5" hspace="5" src="runSyntheticExperiments_36.png" alt=""> <img vspace="5" hspace="5" src="runSyntheticExperiments_40.png" alt=""> <pre class="codeinput"><span class="keyword">end</span>
+</pre><h2>Print accuracy results<a name="7"></a></h2><pre class="codeinput">fprintf(<span class="string">'\n---------------------------------------\nTest Accuracy\n---------------------------------------\n'</span>);
+fprintf(<span class="string">'Set\tMLP\tLinear\tPoly\tRBF\n'</span>);
+<span class="keyword">for</span> i = 1:numDataSets
+    fprintf(<span class="string">'%d'</span>, i);
+    maxScore = max(testAccuracy(i,:));
+    <span class="keyword">for</span> j = 1:numModels
+        fprintf(<span class="string">'\t%2.3f'</span>, testAccuracy(i,j));
+        <span class="keyword">if</span> maxScore == testAccuracy(i,j)
+            fprintf(<span class="string">'*'</span>);
+        <span class="keyword">end</span>
+    <span class="keyword">end</span>
+    fprintf(<span class="string">'\n'</span>);
+<span class="keyword">end</span>
+fprintf(<span class="string">'* best scoring method per data set\n'</span>);
+</pre><pre class="codeoutput">
+---------------------------------------
+Test Accuracy
+---------------------------------------
+Set	MLP	Linear	Poly	RBF
+1	0.992*	0.990	0.977	0.964
+2	0.958	0.516	0.969*	0.918
+3	0.875	0.839	0.946*	0.944
+4	0.969	0.965	0.972	0.983*
+5	0.960*	0.856	0.960*	0.951
+6	0.889	0.813	0.935*	0.933
+7	0.976*	0.951	0.925	0.976*
+8	0.817	0.695	0.918	0.951*
+9	0.882	0.624	0.900	0.921*
+10	0.843	0.783	0.908	0.923*
+* best scoring method per data set
+</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2015a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%%
+% Runs multi-layered perceptron, linear SVM, polynomial SVM, and RBF SVM
+% on 10 different synthetic data sets, uses cross-validation, and
+% evaluates on the test sets.
+
+
+clear;
+close all;
+
+load ../syntheticData;
+
+numDataSets = length(trainData);
+numModels = 4;
+folds = 5;
+
+testAccuracy = zeros(numDataSets, numModels);
+
+
+for i = 1:numDataSets
+    %% run multi-layered perceptron
+    
+    structures = {1, 2, 4, [2 2], [2 4], [4 4], [2 2 2]};
+    lambdaVals = [0.01, 0.1, 1];
+    
+    clear params;
+    
+    params.maxIter = 400;
+    params.squashFunction = @logistic;
+    params.lossFunction = @nll;
+    
+    bestParams = [];
+    bestScore = 0;
+    
+    for j = 1:length(structures)
+        for k = 1:length(lambdaVals)
+            params.numHiddenUnits = structures{j};
+            params.lambda = lambdaVals(k);
+            
+            cvScore = crossValidate(@mlpTrain, @mlpPredict, trainData{i},...
+                trainLabels{i}, folds, params);
+            
+            if cvScore > bestScore
+                bestScore = cvScore;
+                bestParams = params;
+            end
+        end
+    end
+    
+    model = mlpTrain(trainData{i}, trainLabels{i}, bestParams);
+    predictions = mlpPredict(testData{i}, model);
+    testAccuracy(i,1) = sum(predictions == testLabels{i}) / length(testLabels{i});
+    
+    figure;
+    plotSurface(@mlpPredict, model);
+    title(sprintf('MLP on Data Set %d', i));
+    
+    hold on;
+    plotData(trainData{i}, trainLabels{i});
+    hold off;
+    drawnow;
+    
+    %% run linear SVM
+    
+    cVals = 10.^linspace(-3, 3, 7);
+    
+    clear params;
+    
+    params.kernel = 'linear';
+    
+    bestParams = [];
+    bestScore = 0;
+    
+    for j = 1:length(cVals)
+        params.C = cVals(j);
+        cvScore = crossValidate(@kernelSvmTrain, @kernelSvmPredict, ...
+            trainData{i}, trainLabels{i}, folds, params);
+        
+        if cvScore > bestScore
+            bestScore = cvScore;
+            bestParams = params;
+        end
+    end
+    
+    model = kernelSvmTrain(trainData{i}, trainLabels{i}, bestParams);
+    predictions = kernelSvmPredict(testData{i}, model);
+    testAccuracy(i,2) = sum(predictions == testLabels{i}) / length(testLabels{i});
+    
+    figure;
+    plotSurface(@kernelSvmPredict, model);
+    title(sprintf('Linear SVM on Data Set %d', i));
+    
+    hold on;
+    plotData(trainData{i}, trainLabels{i});
+    hold off;
+    drawnow;
+    
+    
+    %% run polynomial SVM
+    
+    cVals = 10.^linspace(-3, 3, 7);
+    orders = [2 3 4 5 6];
+    
+    clear params;
+    
+    params.kernel = 'polynomial';
+    
+    bestParams = [];
+    bestScore = 0;
+    
+    for j = 1:length(cVals)
+        for k = 1:length(orders)
+            params.C = cVals(j);
+            params.order = orders(k);
+            
+            cvScore = crossValidate(@kernelSvmTrain, @kernelSvmPredict, ...
+                trainData{i}, trainLabels{i}, folds, params);
+            
+            if cvScore > bestScore
+                bestScore = cvScore;
+                bestParams = params;
+            end
+        end
+    end
+    
+    model = kernelSvmTrain(trainData{i}, trainLabels{i}, bestParams);
+    predictions = kernelSvmPredict(testData{i}, model);
+    testAccuracy(i,3) = sum(predictions == testLabels{i}) / length(testLabels{i});
+    
+    figure;
+    plotSurface(@kernelSvmPredict, model);
+    title(sprintf('Polynomial SVM on Data Set %d', i));
+    
+    hold on;
+    plotData(trainData{i}, trainLabels{i});
+    hold off;
+    drawnow;
+    
+    
+    %% run RBF SVM
+    
+    cVals = 10.^linspace(-3, 3, 7);
+    sigmaVals = 10.^linspace(-2, 1, 5);
+    
+    clear params;
+    
+    params.kernel = 'rbf';
+    
+    bestParams = [];
+    bestScore = 0;
+    
+    for j = 1:length(cVals)
+        for k = 1:length(sigmaVals)
+            params.C = cVals(j);
+            params.sigma = sigmaVals(k);
+            
+            cvScore = crossValidate(@kernelSvmTrain, @kernelSvmPredict, ...
+                trainData{i}, trainLabels{i}, folds, params);
+            
+            if cvScore > bestScore
+                bestScore = cvScore;
+                bestParams = params;
+            end
+        end
+    end
+    
+    model = kernelSvmTrain(trainData{i}, trainLabels{i}, bestParams);
+    predictions = kernelSvmPredict(testData{i}, model);
+    testAccuracy(i,4) = sum(predictions == testLabels{i}) / length(testLabels{i});
+    
+    figure;
+    plotSurface(@kernelSvmPredict, model);
+    title(sprintf('RBF SVM on Data Set %d', i));
+    
+    hold on;
+    plotData(trainData{i}, trainLabels{i});
+    hold off;
+    drawnow;
+    
+end
+
+%% Print accuracy results
+fprintf('\nREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH-\nTest Accuracy\nREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH-\n');
+fprintf('Set\tMLP\tLinear\tPoly\tRBF\n');
+for i = 1:numDataSets
+    fprintf('%d', i);
+    maxScore = max(testAccuracy(i,:));
+    for j = 1:numModels
+        fprintf('\t%2.3f', testAccuracy(i,j));
+        if maxScore == testAccuracy(i,j)
+            fprintf('*');
+        end
+    end
+    fprintf('\n');
+end
+fprintf('* best scoring method per data set\n');
+
+
+##### SOURCE END #####
+--></body></html>
